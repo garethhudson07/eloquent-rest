@@ -59,7 +59,7 @@ class Adapter
         // However we want to exclude any clauses on the primary key as this will be handled via the url
         $conditions = array_map(function ($value) {
             return $value === null ? 'null' : $value;
-        }, Helpers::arrayPull($clauses, 'where'));
+        }, Helpers::pull($clauses, 'where'));
 
         $clauses = array_merge($clauses, $conditions);
 
@@ -79,6 +79,6 @@ class Adapter
             return $data[$this->model->getName()];
         }
 
-        return $data[Helpers::strCamelCase($this->model->getEndpoint())];
+        return $data[Helpers::camel($this->model->getEndpoint())];
     }
 }

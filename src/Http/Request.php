@@ -55,7 +55,7 @@ class Request
             $clauses = $query->getClauses();
 
             $response = $this->json($this->make()->get(
-                Helpers::arrayPull($clauses['where'], $this->model->getKeyName()) ?: '',
+                Helpers::pull($clauses['where'], $this->model->getKeyName()) ?: '',
                 ['query' => $this->adapter->formatClauses($clauses)]
 
             ));
@@ -128,7 +128,7 @@ class Request
     protected function make()
     {
         return new Client([
-            'base_url' => implode('/', Helpers::arrayFlatten([
+            'base_url' => implode('/', Helpers::flatten([
                 $this->model->getPrefix(),
                 $this->model->getScopes(),
                 $this->model->getEndpoint()

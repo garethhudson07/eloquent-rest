@@ -35,7 +35,7 @@ abstract class Relation
      */
     public function getName()
     {
-        return Helpers::strCamelCase($this->getRelated()->getEndpoint());
+        return Helpers::camel($this->getRelated()->getEndpoint());
     }
 
     /**
