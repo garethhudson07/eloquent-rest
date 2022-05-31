@@ -1,18 +1,21 @@
 <?php
 
-namespace App\Models\Api;
+namespace EloquentRest\Relations;
 
-class BelongsTo extends Relation {
+use EloquentRest\Models\Contracts\ModelInterface;
+
+class BelongsTo extends Relation
+{
 
     protected $foreignKey;
-    
-    public function __construct(Model $model, Model $related, $foreignKey = NULL)
+
+    public function __construct(ModelInterface $model, ModelInterface $related, $foreignKey = null)
     {
         parent::__construct($model, $related);
-        
+
         $this->foreignKey = $foreignKey ?: $related->getForeignKey();
     }
-    
+
     /**
      * Get the relations name.
      *
@@ -22,7 +25,7 @@ class BelongsTo extends Relation {
     {
         return $this->getRelated()->getName();
     }
-    
+
     /**
      * Get a new query instance.
      *
@@ -31,10 +34,10 @@ class BelongsTo extends Relation {
     public function newQuery()
     {
         $related = $this->getRelated();
-        
+
         return $related->newQuery()->where($related->getKeyName(), $this->model->getAttribute($this->foreignKey));
     }
-    
+
     /**
      * Create a new relation.
      *

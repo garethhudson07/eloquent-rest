@@ -25,5 +25,10 @@
             "email": "66941+bullenb@users.noreply.github.com"
         }
     ],
-    "require": {}
+    "require": {
+        "php": ">=7.4.0",
+        "guzzlehttp/guzzle": "^7.4",
+        "league/oauth2-client": "^2.6",
+        "garethhudson07/aggregate": "^0.1.0"
+    }
 }

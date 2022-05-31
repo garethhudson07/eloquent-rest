@@ -1,68 +1,76 @@
 <?php
 
-namespace App\Models\Api;
+namespace EloquentRest\Models;
 
-use App\Models\ModelInterface;
-use App\Auth\OAuth2\Clients\AccessTokens\AccessTokenInterface;
+use EloquentRest\Http\Request;
+use EloquentRest\Models\Contracts\ModelInterface;
+use EloquentRest\Query;
+use EloquentRest\Relations\BelongsTo;
+use EloquentRest\Relations\HasMany;
+use EloquentRest\Relations\MorphTo;
+use EloquentRest\Relations\Nested;
+use EloquentRest\Support\Helpers;
+use League\OAuth2\Client\Token\AccessTokenInterface;
 
-abstract class Model implements ModelInterface {
-    
+abstract class Model implements ModelInterface
+{
+
     /**
      * The name of the resource
      *
      * @var string
      */
     protected $name;
-    
+
     /**
-     * Flag to indicate hether or not the resource is a singleton
+     * Flag to indicate whether or not the resource is a singleton
      *
      * @var boolean
      */
-    protected $singleton = FALSE;
-    
+    protected $singleton = false;
+
     /**
      * The model's attributes.
      *
      * @var array
      */
     protected $attributes = [];
-    
+
     /**
      * The model's relations.
      *
      * @var array
      */
     protected $relations = [];
-    
+
     /**
      * The model's scopes.
      *
      * @var array
      */
     protected $scopes = [];
-    
+
     /**
      * The primary key for the model.
      *
      * @var string
      */
     protected $primaryKey = 'id';
-    
+
     /**
      * Root API location
      *
      * @var string
      */
     protected $prefix = '';
-    
+
     /**
      * AccessTokenInterface implementation
      *
-     * @var App\Auth\Oauth2\AccessTokenInterface
+     * @var AccessTokenInterface
      */
     protected $token;
-    
+
     /**
      * Create a new Model instance.
      *
@@ -72,14 +80,13 @@ abstract class Model implements ModelInterface {
     public function __construct(AccessTokenInterface $token)
     {
         $this->token = $token;
-        
+
         // If the name has not been set manually use the name of the extending class
-        if( ! $this->name)
-        {
-            $this->name = strtolower(class_basename($this));
+        if (!$this->name) {
+            $this->name = strtolower(Helpers::classBasename($this));
         }
     }
-    
+
     /**
      * Dynamically retrieve attributes on the model.
      *
@@ -88,14 +95,13 @@ abstract class Model implements ModelInterface {
      */
     public function __get($key)
     {
-        if(($attribute = $this->getAttribute($key)) !== FALSE)
-        {
+        if (($attribute = $this->getAttribute($key)) !== false) {
             return $attribute;
         }
-        
+
         return $this->getRelation($key);
     }
-    
+
     /**
      * Get the model's attributes.
      *
@@ -105,7 +111,7 @@ abstract class Model implements ModelInterface {
     {
         return $this->attributes;
     }
-    
+
     /**
      * Get an attribute from the model.
      *
@@ -114,14 +120,13 @@ abstract class Model implements ModelInterface {
      */
     public function getAttribute($key)
     {
-        if(array_key_exists($key, $this->attributes))
-        {
+        if (array_key_exists($key, $this->attributes)) {
             return $this->attributes[$key];
         }
-        
-        return FALSE;
+
+        return false;
     }
-    
+
     /**
      * Get the model's relations.
      *
@@ -131,7 +136,7 @@ abstract class Model implements ModelInterface {
     {
         return $this->relations;
     }
-    
+
     /**
      * Get a relation from the model.
      *
@@ -140,14 +145,13 @@ abstract class Model implements ModelInterface {
      */
     public function getRelation($key)
     {
-        if(array_key_exists($key, $this->relations))
-        {
+        if (array_key_exists($key, $this->relations)) {
             return $this->relations[$key];
         }
-        
-        return FALSE;
+
+        return false;
     }
-    
+
     /**
      * Get token.
      *
@@ -158,7 +162,7 @@ abstract class Model implements ModelInterface {
     {
         return $this->token;
     }
-    
+
     /**
      * Get scopes.
      *
@@ -168,7 +172,7 @@ abstract class Model implements ModelInterface {
     {
         return $this->scopes;
     }
-    
+
     /**
      * Get the model's name.
      *
@@ -178,7 +182,7 @@ abstract class Model implements ModelInterface {
     {
         return $this->name;
     }
-    
+
     /**
      * Get the model's prefix.
      *
@@ -188,7 +192,7 @@ abstract class Model implements ModelInterface {
     {
         return $this->prefix;
     }
-    
+
     /**
      * Get the value of the model's primary key.
      *
@@ -208,7 +212,7 @@ abstract class Model implements ModelInterface {
     {
         return $this->primaryKey;
     }
-    
+
     /**
      * Get the model's foreign key.
      *
@@ -216,9 +220,9 @@ abstract class Model implements ModelInterface {
      */
     public function getForeignKey()
     {
-        return $this->name.ucfirst($this->getKeyName());
+        return $this->name . ucfirst($this->getKeyName());
     }
-    
+
     /**
      * Dynamically set attributes on the model.
      *
@@ -230,7 +234,7 @@ abstract class Model implements ModelInterface {
     {
         $this->attributes[$key] = $value;
     }
-    
+
     /**
      * Set a relation.
      *
@@ -241,7 +245,7 @@ abstract class Model implements ModelInterface {
     {
         $this->relations[$key] = $relation;
     }
-    
+
     /**
      * Determine if an attribute exists on the model.
      *
@@ -252,19 +256,19 @@ abstract class Model implements ModelInterface {
     {
         return (isset($this->attributes[$key]) || isset($this->relations[$key]));
     }
-    
+
     /**
      * Dynamically handle query builder methods via the model.
      *
      * @param  string  $method
      * @param  array   $parameters
-     * @return App\Models\Api\QueryBuilder
+     * @return Query
      */
     public function __call($method, $parameters)
     {
         return call_user_func_array([$this->newQuery(), $method], $parameters);
     }
-    
+
     /**
      * Determine whether the model exists.
      *
@@ -274,7 +278,7 @@ abstract class Model implements ModelInterface {
     {
         return (array_key_exists($this->getKeyName(), $this->getAttributes()) || $this->isSingleton());
     }
-    
+
     /**
      * Determine whether the model exists.
      *
@@ -284,7 +288,7 @@ abstract class Model implements ModelInterface {
     {
         return $this->singleton;
     }
-    
+
     /**
      * Create a new instance of the model.
      *
@@ -295,7 +299,7 @@ abstract class Model implements ModelInterface {
     {
         return (new static($this->getToken()))->scope($this->getScopes())->fill($attributes);
     }
-    
+
     /**
      * Create a new model.
      *
@@ -306,7 +310,7 @@ abstract class Model implements ModelInterface {
     {
         return $this->newInstance($attributes)->save();
     }
-    
+
     /**
      * Save the model
      *
@@ -315,10 +319,10 @@ abstract class Model implements ModelInterface {
     public function save()
     {
         $response = $this->exists() ? $this->newRequest()->put() : $this->newRequest()->post();
-        
+
         return $this->fill($response);
     }
-    
+
     /**
      * Delete the model
      *
@@ -328,7 +332,7 @@ abstract class Model implements ModelInterface {
     {
         return $this->newRequest()->delete();
     }
-    
+
     /**
      * Fill the model with an array of attributes.
      *
@@ -337,23 +341,21 @@ abstract class Model implements ModelInterface {
      */
     public function fill(array $attributes)
     {
-        foreach($attributes as $key => $value)
-        {
-            if(method_exists($this, $key))
-            {
+        foreach ($attributes as $key => $value) {
+            if (method_exists($this, $key)) {
                 $relation = call_user_func([$this, $key])->fill($value);
-                
+
                 $this->setRelation($key, $relation);
-                
+
                 continue;
             }
-            
+
             $this->attributes[$key] = $value;
         }
-        
+
         return $this;
     }
-    
+
     /**
      * Add scope to the model.
      *
@@ -361,20 +363,17 @@ abstract class Model implements ModelInterface {
      * @param  mixed  $key
      * @return $this
      */
-    public function scope($context, $key = NULL)
+    public function scope($context, $key = null)
     {
-        if(is_array($context))
-        {
+        if (is_array($context)) {
             $this->scopes = array_merge($this->scopes, $context);
-        }
-        else
-        {
+        } else {
             $this->scopes[] = compact('context', 'key');
         }
-        
+
         return $this;
     }
-    
+
     /**
      * Get a new instance of the Request class
      *
@@ -384,17 +383,17 @@ abstract class Model implements ModelInterface {
     {
         return new Request($this);
     }
-    
+
     /**
      * Get a new instance of the query builder
      *
-     * @return App\Models\Rest\QueryBuilder
+     * @return Query
      */
     public function newQuery()
     {
         return new Query($this);
     }
-    
+
     /**
      * Convert the model instance to an array.
      *
@@ -402,9 +401,9 @@ abstract class Model implements ModelInterface {
      */
     public function toArray()
     {
-	return array_merge($this->getAttributes(), $this->relationsToArray());
+        return array_merge($this->getAttributes(), $this->relationsToArray());
     }
-    
+
     /**
      * Convert the model's relationships to an array.
      *
@@ -413,15 +412,14 @@ abstract class Model implements ModelInterface {
     public function relationsToArray()
     {
         $relations = [];
-        
-        foreach($this->getRelations() as $key => $value)
-        {
+
+        foreach ($this->getRelations() as $key => $value) {
             $relations[$key] = $value->toArray();
         }
-        
+
         return $relations;
     }
-    
+
     /**
      * Convert the model instance to JSON.
      *
@@ -431,7 +429,7 @@ abstract class Model implements ModelInterface {
     {
         return json_encode($this->toArray());
     }
-    
+
     /**
      * Convert the model to its string representation.
      *
@@ -441,60 +439,56 @@ abstract class Model implements ModelInterface {
     {
         return $this->toJson();
     }
-    
+
     /**
      * Nest a model.
      *
      * @param  string  $model
-     * @return Model
+     * @return Nested
      */
     protected function nest($model)
     {
         return new Nested($this, new $model($this->getToken()));
     }
-    
+
     /**
      * Apply a "belongs to" relationship.
      *
      * @param  string  $model
      * @param  string  $foreignKey
-     * @return mixed
+     * @return BelongsTo
      */
-    protected function belongsTo($model, $foreignKey = NULL)
+    protected function belongsTo($model, $foreignKey = null)
     {
         return new BelongsTo($this, new $model($this->getToken()), $foreignKey);
     }
-    
+
     /**
      * Apply a "morph to" relationship.
      *
      * @param  array   $models
      * @param  string  $morphKey
      * @param  string  $foreignKey
-     * @return mixed
+     * @return MorphTo
      */
-    protected function morphTo(array $models, $morphKey = NULL, $foreignKey = NULL)
+    protected function morphTo(array $models, $morphKey = null, $foreignKey = null)
     {
         // If the morphKey is not set, we will use the name of the calling function
-        if( ! $morphKey)
-        {
+        if (!$morphKey) {
             $trace = debug_backtrace();
             $morphKey = $trace[1]['function'];
         }
-        
-        return new MorphTo
-        (
+
+        return new MorphTo(
             $this,
-            array_map(function($model)
-            {
+            array_map(function ($model) {
                 return new $model($this->getToken());
-                
             }, $models),
             $morphKey,
             $foreignKey
         );
     }
-    
+
     /**
      * Apply a "has many" relationship.
      *
@@ -502,7 +496,7 @@ abstract class Model implements ModelInterface {
      * @param  string  $foreignKey
      * @return HasMany
      */
-    protected function hasMany($model, $foreignKey = NULL)
+    protected function hasMany($model, $foreignKey = null)
     {
         return new HasMany($this, new $model($this->getToken()), $foreignKey);
     }

@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Models\Api;
+namespace EloquentRest;
 
-use App\Support\Collection as BaseCollection;
+use Aggregate\Set;
 
-class Collection extends BaseCollection {
-    
+class Collection extends Set
+{
+
     /**
      * Get an item by it's primary key.
      *
@@ -14,14 +15,12 @@ class Collection extends BaseCollection {
      */
     public function find($id)
     {
-        foreach($this->items as $item)
-        {
-            if($item->getKey() == $id)
-            {
+        foreach ($this->items as $item) {
+            if ($item->getKey() == $id) {
                 return $item;
             }
         }
-        
-        return NULL;
+
+        return null;
     }
 }

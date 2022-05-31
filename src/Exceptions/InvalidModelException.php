@@ -1,16 +1,20 @@
 <?php
 
-namespace App\Models\Api;
+namespace EloquentRest\Exceptions;
 
-class InvalidModelException extends ModelException {
-    
+use EloquentRest\Models\Contracts\ModelInterface;
+use Exception;
+
+class InvalidModelException extends ModelException
+{
+
     /**
      * A list of the exceptions errors.
      *
      * @var array
      */
     protected $errors = [];
-    
+
     /**
      * Create a new InvalidModelException instance.
      *
@@ -18,19 +22,19 @@ class InvalidModelException extends ModelException {
      * @param  string    $message
      * @param  array     $errors
      * @param  int       $code
-     * @paran  Exception $previous
+     * @param  Exception $previous
      * @return void
      */
-    public function __construct(Model $model, $message = '', array $errors = [], $code = 0, Exception $previous = NULL)
+    public function __construct(ModelInterface $model, $message = '', array $errors = [], $code = 0, Exception $previous = null)
     {
         parent::__construct($model, $message, $code, $previous);
-        
+
         $this->errors = $errors;
     }
-    
+
     /**
      * Get the exceptions errors array.
-     * 
+     *
      * @return array
      */
     public function getErrors()

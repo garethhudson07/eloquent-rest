@@ -1,19 +1,30 @@
 <?php
 
-namespace App\Models\Api;
+namespace EloquentRest\Http;
 
+use EloquentRest\Api\Adapter;
+use EloquentRest\Exceptions\InvalidModelException;
+use EloquentRest\Exceptions\ModelException;
+use EloquentRest\Exceptions\ModelNotFoundException;
+use EloquentRest\Models\Contracts\ModelInterface;
+use EloquentRest\Query;
+use EloquentRest\Support\Helpers;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\TransferException;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Psr7\Response;
+use InvalidArgumentException;
+use RuntimeException;
 
-class Request {
+class Request
+{
 
     /**
      * The model to be queried
      *
-     * @var string
+     * @var ModelInterface
      */
     protected $model;
-    
+
     /**
      * The adapter instance
      *
@@ -24,84 +35,73 @@ class Request {
     /**
      * Create a new Request instance.
      *
-     * @param  App\Models\Rest\Model $model
+     * @param  ModelInterface $model
      * @return void
      */
-    public function __construct(Model $model)
+    public function __construct(ModelInterface $model)
     {
         $this->model = $model;
         $this->adapter = new Adapter($model);
     }
-    
+
     /**
      * Execute a get request on the model.
      *
-     * @return string
+     * @return array
      */
     public function get(Query $query)
     {
-        try
-        {
+        try {
             $clauses = $query->getClauses();
-            
-            $response = $this->make()->get
-            (
-                array_pull($clauses['where'], $this->model->getKeyName()) ?: '',
+
+            $response = $this->json($this->make()->get(
+                Helpers::arrayPull($clauses['where'], $this->model->getKeyName()) ?: '',
                 ['query' => $this->adapter->formatClauses($clauses)]
-                
-            )->json();
-            
+
+            ));
+
             return $this->adapter->extract($response);
-        }
-        catch(TransferException $e)
-        {
-            $this->handleTransferException($e);
+        } catch (RequestException $e) {
+            $this->handleRequestException($e);
         }
     }
-    
+
     /**
      * Execute a put request on the model.
      *
-     * @return string
+     * @return array
      */
     public function put()
     {
-        try
-        {
-            $response = $this->make()->put
-            (
+        try {
+            $response = $this->json($this->make()->put(
                 $this->model->getKey(),
                 ['body' => $this->model->getAttributes()]
-                
-            )->json();
-            
+
+            ));
+
             return $this->adapter->extract($response);
-        }
-        catch(TransferException $e)
-        {
-            $this->handleTransferException($e);
+        } catch (RequestException $e) {
+            $this->handleRequestException($e);
         }
     }
-    
+
     /**
      * Execute a post request on the model.
      *
-     * @return string
+     * @return array
      */
     public function post()
     {
-        try
-        {
-            $response = $this->make()->post('', ['body' => $this->model->getAttributes()])->json();
-            
+        try {
+            $response = $this->json($this->make()->post('', ['body' => $this->model->getAttributes()]));
+
             return $this->adapter->extract($response);
-        }
-        catch(TransferException $e)
-        {
-            $this->handleTransferException($e);
+        } catch (RequestException $e) {
+            $this->handleRequestException($e);
         }
     }
-    
+
     /**
      * Execute a delete request on the model.
      *
@@ -109,64 +109,67 @@ class Request {
      */
     public function delete()
     {
-        try
-        {
+        try {
             $this->make()->delete($this->model->getKey());
-            
-            return TRUE;
+
+            return true;
+        } catch (RequestException $e) {
+            $this->handleRequestException($e);
         }
-        catch(TransferException $e)
-        {
-            $this->handleTransferException($e);
-        }
-        
-        return FALSE;
+
+        return false;
     }
-    
+
     /**
      * Generate a new request.
      *
-     * @return string
+     * @return Client
      */
     protected function make()
     {
         return new Client([
-            'base_url' => implode('/', array_flatten
-            ([
+            'base_url' => implode('/', Helpers::arrayFlatten([
                 $this->model->getPrefix(),
                 $this->model->getScopes(),
-                $this->model->isSingleton() ? $this->model->getName() : str_plural($this->model->getName())
-            ])).'/',
+                $this->model->getEndpoint()
+            ])) . '/',
             'defaults' => [
                 'headers' => $this->adapter->getHeaders()
             ]
         ]);
     }
-    
+
     /**
      * Handle a transfer exception.
      *
      * @return string
      */
-    protected function handleTransferException(TransferException $e)
+    protected function handleRequestException(RequestException $e)
     {
         $response = $e->getResponse();
-        
-        $error = $response->json();
-        
-        switch($response->getStatusCode())
-        {
+        $error = $this->json($response);
+
+        switch ($response->getStatusCode()) {
             case 400:
                 throw new InvalidModelException($this->model, $error['errorDescription'], $error['errorDetails']);
                 break;
-            
+
             case 404:
                 throw new ModelNotFoundException($this->model, $error['errorDescription']);
                 break;
-            
+
             default:
                 throw new ModelException($this->model, $error['errorDescription']);
                 break;
         }
+    }
+
+    /**
+     * @param Response $response
+     * @return null|array
+     */
+    protected function json(Response $response): ?array
+    {
+        return json_decode($response->getBody()->getContents(), true);
     }
 }

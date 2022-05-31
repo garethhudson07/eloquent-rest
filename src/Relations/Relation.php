@@ -1,19 +1,23 @@
 <?php
 
-namespace App\Models\Api;
+namespace EloquentRest\Relations;
 
-abstract class Relation {
+use EloquentRest\Models\Contracts\ModelInterface;
+use EloquentRest\Support\Helpers;
+
+abstract class Relation
+{
 
     protected $model;
-    
+
     protected $related;
-    
-    public function __construct(Model $model, Model $related)
+
+    public function __construct(ModelInterface $model, ModelInterface $related)
     {
         $this->model = $model;
         $this->related = $related;
     }
-    
+
     /**
      * Get the related model.
      *
@@ -23,7 +27,7 @@ abstract class Relation {
     {
         return $this->related;
     }
-    
+
     /**
      * Get the relations name.
      *
@@ -31,35 +35,28 @@ abstract class Relation {
      */
     public function getName()
     {
-        $related = $this->getRelated();
-        
-        if($related->isSingleton())
-        {
-            return $related->getName();
-        }
-        
-        return str_plural($related->getName());
+        return Helpers::strCamelCase($this->getRelated()->getEndpoint());
     }
-    
+
     /**
      * Dynamically handle query builder methods via the relation.
      *
      * @param  string  $method
      * @param  array   $parameters
-     * @return App\Models\Api\QueryBuilder
+     * @return Query
      */
     public function __call($method, $parameters)
     {
         return call_user_func_array([$this->newQuery(), $method], $parameters);
     }
-    
+
     /**
      * Get a new query instance.
      *
      * @return Query
      */
     abstract public function newQuery();
-    
+
     /**
      * Create a new relation.
      *
@@ -67,7 +64,7 @@ abstract class Relation {
      * @return Model
      */
     abstract public function create(array $attributes);
-    
+
     /**
      * Fill the relation with an array of attributes.
      *

@@ -1,18 +1,21 @@
 <?php
 
-namespace App\Models\Api;
+namespace EloquentRest\Exceptions;
 
+use EloquentRest\Models\Contracts\ModelInterface;
+use Exception;
 use RuntimeException;
 
-class ModelException extends RuntimeException {
-    
+class ModelException extends RuntimeException
+{
+
     /**
      * The model.
      *
-     * @var Model
+     * @var ModelInterface
      */
     protected $model;
-    
+
     /**
      * Create a new InvalidModelException instance.
      *
@@ -20,19 +23,19 @@ class ModelException extends RuntimeException {
      * @param  string    $message
      * @param  array     $errors
      * @param  int       $code
-     * @paran  Exception $previous
+     * @param  Exception $previous
      * @return void
      */
-    public function __construct(Model $model, $message = '', $code = 0, Exception $previous = NULL)
+    public function __construct(ModelInterface $model, $message = '', $code = 0, Exception $previous = null)
     {
         parent::__construct($message, $code, $previous);
-        
+
         $this->model = $model;
     }
-    
+
     /**
      * Get the model.
-     * 
+     *
      * @return array
      */
     public function getModel()

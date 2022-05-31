@@ -1,17 +1,21 @@
 <?php
 
-namespace App\Models\Api;
+namespace EloquentRest\Relations;
 
-class Nested extends Relation {
-    
-    public function __construct(Model $model, Model $related)
+use EloquentRest\Collection;
+use EloquentRest\Models\Contracts\ModelInterface;
+
+class Nested extends Relation
+{
+
+    public function __construct(ModelInterface $model, ModelInterface $related)
     {
         $related->scope($model->getScopes())
-                ->scope(str_plural($model->getName()), $model->getKey());
-                
+            ->scope($model->getEndpoint(), $model->getKey());
+
         parent::__construct($model, $related);
     }
-    
+
     /**
      * Get a new query instance.
      *
@@ -21,7 +25,7 @@ class Nested extends Relation {
     {
         return $this->getRelated()->newQuery();
     }
-    
+
     /**
      * Create a new relation.
      *
@@ -32,7 +36,7 @@ class Nested extends Relation {
     {
         return $this->getRelated()->create($attributes);
     }
-    
+
     /**
      * Fill the relation with an array of attributes.
      *
@@ -42,20 +46,15 @@ class Nested extends Relation {
     public function fill(array $data)
     {
         $related = $this->getRelated();
-        
-        if($related->isSingleton())
-        {
+
+        if ($related->isSingleton()) {
             return $related->newInstance($data);
-        }
-        else
-        {
-            $items = array_map(function($item) use($related)
-            {
+        } else {
+            $items = array_map(function ($item) use ($related) {
                 return $related->newInstance($item);
-                
             }, $data);
-            
-            return new Collection($items);
+
+            return (new Collection)->fill($items);
         }
     }
 }
