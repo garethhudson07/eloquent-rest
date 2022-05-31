@@ -138,6 +138,10 @@ class Query
     {
         $response = (new Request($this->model))->get($this);
 
+        if (is_null($response)) {
+            return null;
+        }
+
         return (new Factory($this->model))->make($response);
     }
 

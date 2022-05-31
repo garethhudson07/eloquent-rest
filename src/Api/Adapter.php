@@ -4,6 +4,7 @@ namespace EloquentRest\Api;
 
 use EloquentRest\Models\Contracts\ModelInterface;
 use EloquentRest\Support\Helpers;
+use Psr\Http\Message\ResponseInterface;
 
 class Adapter
 {
@@ -32,12 +33,23 @@ class Adapter
      */
     public function getHeaders(): array
     {
-        return ['Authorization' => 'Bearer ' . $this->model->getToken()->getValue()];
+        return ['Authorization' => 'Bearer ' . $this->model->getToken()->getToken()];
+    }
+
+    /**
+     * Get the request body type ('body', 'json').
+     *
+     * @return string
+     */
+    public function getBodyType(): string
+    {
+        return 'body';
     }
 
     /**
      * Generate query parameters.
      *
+     * @param array $clauses
      * @return array
      */
     public function formatClauses(array $clauses): array
@@ -69,15 +81,34 @@ class Adapter
     /**
      * Extract resource data from a raw server response
      *
-     * @param array $response
+     * @param ResponseInterface $data
+     * @return array|null
+     */
+    public function extract(ResponseInterface $data): ?array
+    {
+        return json_decode($data->getBody()->getContents(), true) ?? null;
+    }
+
+    /**
+     * Extract error data from a raw server response
+     *
+     * @param array $data
      * @return array
      */
-    public function extract(array $data): array
+    public function extractErrors(ResponseInterface $data): array
     {
-        if (array_key_exists($this->model->getName(), $data)) {
-            return $data[$this->model->getName()];
-        }
+        return [
+            'errorDescription' => $data['errorDescription'] ?? null,
+            'errorDetails' => $data['errorDetails'] ?? null,
+        ];
+    }
 
-        return $data[Helpers::camel($this->model->getEndpoint())];
+    /**
+     * @param ModelInterface $model
+     * @return array
+     */
+    public function prepare(ModelInterface $model): array
+    {
+        return $model->getAttributes();
     }
 }

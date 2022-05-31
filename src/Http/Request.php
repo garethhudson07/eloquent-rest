@@ -11,7 +11,6 @@ use EloquentRest\Query;
 use EloquentRest\Support\Helpers;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7\Response;
 
 class Request
 {
@@ -30,34 +29,50 @@ class Request
     protected Adapter $adapter;
 
     /**
+     * @var array
+     */
+    protected array $httpClientOptions;
+
+    /**
      * Create a new Request instance.
      *
      * @param ModelInterface $model
      * @return void
      */
-    public function __construct(ModelInterface $model)
+    public function __construct(ModelInterface $model, array $httpClientOptions = [], ?Adapter $adapter = null)
     {
         $this->model = $model;
-        $this->adapter = new Adapter($model);
+        $this->httpClientOptions = $httpClientOptions;
+        $this->adapter = $adapter ?? new Adapter($model);
     }
 
     /**
      * Execute a get request on the model.
      *
-     * @return array
+     * @return array|null
      */
-    public function get(Query $query): array
+    public function get(Query $query): ?array
     {
         try {
             $clauses = $query->getClauses();
+            $resourceId = Helpers::pull($clauses['where'], $this->model->getKeyName());
 
-            $response = $this->json($this->make()->get(
-                Helpers::pull($clauses['where'], $this->model->getKeyName()) ?: '',
-                ['query' => $this->adapter->formatClauses($clauses)]
+            $response = $this->make()->get(
+                $resourceId ?: '',
+                ['query' => $this->adapter->formatClauses($clauses)],
+            );
 
-            ));
+            $data = $this->adapter->extract($response);
 
-            return $this->adapter->extract($response);
+            if (($this->model->isSingleton() || $resourceId) && !$data) {
+                return null;
+            }
+
+            if (!$resourceId && !$data) {
+                return [];
+            }
+
+            return $data;
         } catch (RequestException $e) {
             $this->handleRequestException($e);
         }
@@ -71,11 +86,10 @@ class Request
     public function put(): array
     {
         try {
-            $response = $this->json($this->make()->put(
+            $response = $this->make()->put(
                 $this->model->getKey(),
-                ['body' => $this->model->getAttributes()]
-
-            ));
+                [$this->adapter->getBodyType() => $this->adapter->prepare($this->model)]
+            );
 
             return $this->adapter->extract($response);
         } catch (RequestException $e) {
@@ -91,7 +105,9 @@ class Request
     public function post(): array
     {
         try {
-            $response = $this->json($this->make()->post('', ['body' => $this->model->getAttributes()]));
+            $response = $this->make()->post('', [
+                $this->adapter->getBodyType() => $this->adapter->prepare($this->model)
+            ]);
 
             return $this->adapter->extract($response);
         } catch (RequestException $e) {
@@ -124,16 +140,15 @@ class Request
      */
     protected function make(): Client
     {
-        return new Client([
-            'base_url' => implode('/', Helpers::flatten([
+        return new Client(array_merge($this->httpClientOptions, [
+            'base_uri' => implode('/', array_values(array_filter([
+                $this->httpClientOptions['base_uri'] ?? null,
                 $this->model->getPrefix(),
                 $this->model->getScopes(),
                 $this->model->getEndpoint()
-            ])) . '/',
-            'defaults' => [
-                'headers' => $this->adapter->getHeaders()
-            ]
-        ]);
+            ]))) . '/',
+            'headers' => array_merge($this->httpClientOptions['headers'] ?? [], $this->adapter->getHeaders()),
+        ]));
     }
 
     /**
@@ -147,7 +162,7 @@ class Request
     protected function handleRequestException(RequestException $e): void
     {
         $response = $e->getResponse();
-        $error = $this->json($response);
+        $error = $this->adapter->extractErrors($response);
 
         switch ($response->getStatusCode()) {
             case 400:
@@ -162,14 +177,5 @@ class Request
                 throw new ModelException($this->model, $error['errorDescription']);
                 break;
         }
-    }
-
-    /**
-     * @param Response $response
-     * @return null|array
-     */
-    protected function json(Response $response): ?array
-    {
-        return json_decode($response->getBody()->getContents(), true);
     }
 }
