@@ -1,0 +1,29 @@
+{
+    "name": "garethhudson07/eloquent-rest",
+    "description": "An eloquent model style interface to a REST based API",
+    "keywords": [
+        "eloquent",
+        "model",
+        "rest",
+        "api"
+    ],
+    "homepage": "https://github.com/garethhudson07/eloquent-rest",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "EloquentRest\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Gareth",
+            "email": "garethhudson07@gmail.com"
+        },
+        {
+            "name": "Brendan Bullen",
+            "email": "66941+bullenb@users.noreply.github.com"
+        }
+    ],
+    "require": {}
+}
