@@ -3,13 +3,16 @@
 namespace EloquentRest\Relations;
 
 use EloquentRest\Models\Contracts\ModelInterface;
+use EloquentRest\Query;
 
 class BelongsTo extends Relation
 {
+    /**
+     * @var string|null
+     */
+    protected ?string $foreignKey;
 
-    protected $foreignKey;
-
-    public function __construct(ModelInterface $model, ModelInterface $related, $foreignKey = null)
+    public function __construct(ModelInterface $model, ModelInterface $related, ?string $foreignKey = null)
     {
         parent::__construct($model, $related);
 
@@ -21,7 +24,7 @@ class BelongsTo extends Relation
      *
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->getRelated()->getName();
     }
@@ -31,7 +34,7 @@ class BelongsTo extends Relation
      *
      * @return Query
      */
-    public function newQuery()
+    public function newQuery(): Query
     {
         $related = $this->getRelated();
 
@@ -41,10 +44,10 @@ class BelongsTo extends Relation
     /**
      * Create a new relation.
      *
-     * @param  array $attributes
-     * @return Model
+     * @param array $attributes
+     * @return ModelInterface
      */
-    public function create(array $attributes)
+    public function create(array $attributes): ModelInterface
     {
         return $this->getRelated()->create($attributes);
     }
@@ -52,11 +55,11 @@ class BelongsTo extends Relation
     /**
      * Fill the relation with an array of attributes.
      *
-     * @param  array  $attributes
-     * @return Model
+     * @param array $attributes
+     * @return ModelInterface
      */
-    public function fill(array $data)
+    public function fill(array $attributes): ModelInterface
     {
-        return $this->getRelated()->newInstance($data);
+        return $this->getRelated()->newInstance($attributes);
     }
 }

@@ -13,40 +13,40 @@ class Query
      *
      * @var ModelInterface
      */
-    protected $model;
+    protected ModelInterface $model;
 
     /**
      * The relations to expand.
      *
      * @var array
      */
-    protected $expand = [];
+    protected array $expand = [];
 
     /**
      * Conditional clauses
      *
      * @var array
      */
-    protected $where = [];
+    protected array $where = [];
 
     /**
      * Sort clauses.
      *
-     * @var string
+     * @var array
      */
-    protected $sort = [];
+    protected array $sort = [];
 
     /**
      * The number of result to retrieve.
      *
      * @var int
      */
-    protected $limit;
+    protected int $limit;
 
     /**
      * Create a new Query instance.
      *
-     * @param  ModelInterface $model
+     * @param ModelInterface $model
      * @return void
      */
     public function __construct(ModelInterface $model)
@@ -57,11 +57,11 @@ class Query
     /**
      * Add a where clause to the query.
      *
-     * @param  string $key
-     * @param  string $value
-     * @return $this
+     * @param string $key
+     * @param mixed $value
+     * @return static
      */
-    public function where($key, $value)
+    public function where(string $key, $value): self
     {
         $this->where[$key] = $value;
 
@@ -71,10 +71,10 @@ class Query
     /**
      * Add a take clause
      *
-     * @param  int amount
-     * @return $this
+     * @param int amount
+     * @return static
      */
-    public function take($amount)
+    public function take(int $amount): self
     {
         $this->limit = $amount;
 
@@ -84,11 +84,11 @@ class Query
     /**
      * Add an order by clause
      *
-     * @param  string field
-     * @param  string direction
-     * @return $this
+     * @param string field
+     * @param string direction
+     * @return static
      */
-    public function orderBy($field, $direction = 'asc')
+    public function orderBy(string $field, string $direction = 'asc'): self
     {
         $this->sort[$field] = $direction;
 
@@ -98,10 +98,10 @@ class Query
     /**
      * Eager load models.
      *
-     * @param  string  $nestedResource
-     * @return $this
+     * @param string|array $relations
+     * @return static
      */
-    public function with($relations)
+    public function with($relations): self
     {
         if (is_string($relations)) {
             $relations = func_get_args();
@@ -132,7 +132,7 @@ class Query
     /**
      * Execute a query
      *
-     * @return ModelInterface|Collection
+     * @return ModelInterface|Collection|null
      */
     public function get()
     {
@@ -144,10 +144,10 @@ class Query
     /**
      * Find a model by it's primary key.
      *
-     * @param  int id
-     * @return static
+     * @param mixed id
+     * @return ModelInterface|null
      */
-    public function find($id)
+    public function find($id): ?ModelInterface
     {
         $this->where($this->model->getKeyName(), $id);
 
@@ -157,10 +157,9 @@ class Query
     /**
      * Execute the query and get the first result.
      *
-     * @param  array  $columns
-     * @return static
+     * @return ModelInterface
      */
-    public function first()
+    public function first(): ?ModelInterface
     {
         $result = $this->get();
 
@@ -168,12 +167,12 @@ class Query
     }
 
     /**
-     * Execute the query and get the first result.
+     * Execute the query and get the first result or throw an exception if it is not found.
      *
-     * @param  array  $columns
-     * @return static
+     * @return ModelInterface
+     * @throws ModelNotFoundException
      */
-    public function firstOrFail()
+    public function firstOrFail(): ModelInterface
     {
         if (!$result = $this->first()) {
             throw new ModelNotFoundException($this->model);
@@ -187,7 +186,7 @@ class Query
      *
      * @return ModelInterface
      */
-    public function getModel()
+    public function getModel(): ModelInterface
     {
         return $this->model;
     }
@@ -197,7 +196,7 @@ class Query
      *
      * @return array
      */
-    public function getClauses()
+    public function getClauses(): array
     {
         return [
             'expand' => $this->expand,

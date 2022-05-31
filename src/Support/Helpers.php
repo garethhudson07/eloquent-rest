@@ -27,7 +27,7 @@ class Helpers
      *
      * Based on class_basename function within the Laravel Framework
      *
-     * @param  string|object  $class
+     * @param string|object  $class
      * @return string
      */
     public static function classBasename($class): string
@@ -42,7 +42,7 @@ class Helpers
      *
      * Based on Illuminate\Support\Arr::accessible() method within the Laravel Framework
      *
-     * @param  mixed  $value
+     * @param mixed  $value
      * @return bool
      */
     public static function accessible($value)
@@ -55,8 +55,8 @@ class Helpers
      *
      * Based on Illuminate\Support\Arr::exists() method within the Laravel Framework
      *
-     * @param  \ArrayAccess|array  $array
-     * @param  string|int  $key
+     * @param \ArrayAccess|array $array
+     * @param string|int  $key
      * @return bool
      */
     public static function exists($array, $key)
@@ -77,9 +77,9 @@ class Helpers
      *
      * Based on Illuminate\Support\Arr::get() method within the Laravel Framework
      *
-     * @param  \ArrayAccess|array  $array
-     * @param  string|int|null  $key
-     * @param  mixed  $default
+     * @param \ArrayAccess|array $array
+     * @param string|int|null  $key
+     * @param mixed  $default
      * @return mixed
      */
     public static function get($array, $key, $default = null)
@@ -116,8 +116,8 @@ class Helpers
      *
      * Based on Illuminate\Support\Arr::forget() method within the Laravel Framework
      *
-     * @param  array  $array
-     * @param  array|string|int|float  $keys
+     * @param array $array
+     * @param array|string|int|float  $keys
      * @return void
      */
     public static function forget(&$array, $keys)
@@ -162,9 +162,9 @@ class Helpers
      *
      * Based on Illuminate\Support\Arr::pull() method within the Laravel Framework
      *
-     * @param  array  $array
-     * @param  string  $key
-     * @param  mixed  $default
+     * @param array $array
+     * @param string $key
+     * @param mixed  $default
      * @return mixed
      */
     public static function pull(&$array, $key, $default = null)
@@ -181,8 +181,8 @@ class Helpers
      *
      * Based on Illuminate\Support\Arr::flatten() method within the Laravel Framework
      *
-     * @param  iterable  $array
-     * @param  int  $depth
+     * @param iterable  $array
+     * @param int  $depth
      * @return array
      */
     public static function flatten($array, $depth = INF)
@@ -213,7 +213,7 @@ class Helpers
      *
      * Based on Illuminate\Support\Str::camel() method within the Laravel Framework
      *
-     * @param  string  $value
+     * @param string $value
      * @return string
      */
     public static function camel($value)
@@ -230,9 +230,9 @@ class Helpers
      *
      * Based on Illuminate\Support\Str::replace() method within the Laravel Framework
      *
-     * @param  string|string[]  $search
-     * @param  string|string[]  $replace
-     * @param  string|string[]  $subject
+     * @param string|string[]  $search
+     * @param string|string[]  $replace
+     * @param string|string[]  $subject
      * @return string
      */
     public static function replace($search, $replace, $subject)
@@ -245,9 +245,9 @@ class Helpers
      *
      * Based on Illuminate\Support\Str::substr() method within the Laravel Framework
      *
-     * @param  string  $string
-     * @param  int  $start
-     * @param  int|null  $length
+     * @param string $string
+     * @param int  $start
+     * @param int|null  $length
      * @return string
      */
     public static function substr($string, $start, $length = null)
@@ -260,7 +260,7 @@ class Helpers
      *
      * Based on Illuminate\Support\Str::upper() method within the Laravel Framework
      *
-     * @param  string  $value
+     * @param string $value
      * @return string
      */
     public static function upper($value)
@@ -269,11 +269,24 @@ class Helpers
     }
 
     /**
+     * Convert the given string to lower-case.
+     *
+     * Based on Illuminate\Support\Str::lower() method within the Laravel Framework
+     *
+     * @param string $value
+     * @return string
+     */
+    public static function lower($value)
+    {
+        return mb_strtolower($value, 'UTF-8');
+    }
+
+    /**
      * Make a string's first character uppercase.
      *
      * Based on Illuminate\Support\Str::ucfirst() method within the Laravel Framework
      *
-     * @param  string  $string
+     * @param string $string
      * @return string
      */
     public static function ucfirst($string)
@@ -286,7 +299,7 @@ class Helpers
      *
      * Based on Illuminate\Support\Str::studly() method within the Laravel Framework
      *
-     * @param  string  $value
+     * @param string $value
      * @return string
      */
     public static function studly($value)
@@ -309,7 +322,7 @@ class Helpers
      *
      * Based on value function within the Laravel Framework
      *
-     * @param  mixed  $value
+     * @param mixed  $value
      * @return mixed
      */
     function value($value, ...$args)

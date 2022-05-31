@@ -4,6 +4,7 @@ namespace EloquentRest\Relations;
 
 use EloquentRest\Collection;
 use EloquentRest\Models\Contracts\ModelInterface;
+use EloquentRest\Query;
 
 class Nested extends Relation
 {
@@ -21,7 +22,7 @@ class Nested extends Relation
      *
      * @return Query
      */
-    public function newQuery()
+    public function newQuery(): Query
     {
         return $this->getRelated()->newQuery();
     }
@@ -29,10 +30,10 @@ class Nested extends Relation
     /**
      * Create a new relation.
      *
-     * @param  array $attributes
-     * @return Model
+     * @param array $attributes
+     * @return ModelInterface
      */
-    public function create(array $attributes)
+    public function create(array $attributes): ModelInterface
     {
         return $this->getRelated()->create($attributes);
     }
@@ -40,8 +41,8 @@ class Nested extends Relation
     /**
      * Fill the relation with an array of attributes.
      *
-     * @param  array  $attributes
-     * @return mixed
+     * @param array $attributes
+     * @return ModelInterface|Collection
      */
     public function fill(array $data)
     {

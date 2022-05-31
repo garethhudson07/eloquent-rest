@@ -4,13 +4,16 @@ namespace EloquentRest\Relations;
 
 use EloquentRest\Collection;
 use EloquentRest\Models\Contracts\ModelInterface;
+use EloquentRest\Query;
 
 class HasMany extends Relation
 {
+    /**
+     * @var null|string
+     */
+    protected ?string $foreignKey;
 
-    protected $foreignKey;
-
-    public function __construct(ModelInterface $model, ModelInterface $related, $foreignKey = null)
+    public function __construct(ModelInterface $model, ModelInterface $related, ?string $foreignKey = null)
     {
         parent::__construct($model, $related);
 
@@ -22,7 +25,7 @@ class HasMany extends Relation
      *
      * @return Query
      */
-    public function newQuery()
+    public function newQuery(): Query
     {
         $query = $this->getRelated()->newQuery();
 
@@ -34,10 +37,10 @@ class HasMany extends Relation
     /**
      * Create a new relation.
      *
-     * @param  array $attributes
-     * @return Model
+     * @param array $attributes
+     * @return ModelInterface
      */
-    public function create(array $attributes)
+    public function create(array $attributes): ModelInterface
     {
         return $this->getRelated()->create($this->associate($attributes));
     }
@@ -45,10 +48,10 @@ class HasMany extends Relation
     /**
      * Fill the relation with an array of attributes.
      *
-     * @param  array  $attributes
+     * @param array $attributes
      * @return Collection
      */
-    public function fill(array $data)
+    public function fill(array $data): Collection
     {
         $data = array_map(function ($item) {
             return $this->getRelated()->newInstance($this->associate($item));
@@ -60,10 +63,10 @@ class HasMany extends Relation
     /**
      * Create a new instance of the relation.
      *
-     * @param  array  $attributes
+     * @param array $attributes
      * @return mixed
      */
-    protected function associate(array $attributes = [])
+    protected function associate(array $attributes = []): array
     {
         $attributes[$this->foreignKey] = $this->model->getKey();
 

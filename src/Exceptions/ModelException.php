@@ -8,25 +8,24 @@ use RuntimeException;
 
 class ModelException extends RuntimeException
 {
-
     /**
      * The model.
      *
      * @var ModelInterface
      */
-    protected $model;
+    protected ModelInterface $model;
 
     /**
      * Create a new InvalidModelException instance.
      *
      *
-     * @param  string    $message
-     * @param  array     $errors
-     * @param  int       $code
-     * @param  Exception $previous
+     * @param string    $message
+     * @param array     $errors
+     * @param int       $code
+     * @param Exception $previous
      * @return void
      */
-    public function __construct(ModelInterface $model, $message = '', $code = 0, Exception $previous = null)
+    public function __construct(ModelInterface $model, string $message = '', int $code = 0, Exception $previous = null)
     {
         parent::__construct($message, $code, $previous);
 
@@ -36,9 +35,9 @@ class ModelException extends RuntimeException
     /**
      * Get the model.
      *
-     * @return array
+     * @return ModelInterface
      */
-    public function getModel()
+    public function getModel(): ModelInterface
     {
         return $this->model;
     }

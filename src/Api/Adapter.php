@@ -7,18 +7,17 @@ use EloquentRest\Support\Helpers;
 
 class Adapter
 {
-
     /**
      * The model instance
      *
      * @var ModelInterface
      */
-    protected $model;
+    protected ModelInterface $model;
 
     /**
      * Create a new Response instance.
      *
-     * @param  array $data
+     * @param array $data
      * @return void
      */
     public function __construct(ModelInterface $model)
@@ -31,7 +30,7 @@ class Adapter
      *
      * @return array
      */
-    public function getHeaders()
+    public function getHeaders(): array
     {
         return ['Authorization' => 'Bearer ' . $this->model->getToken()->getValue()];
     }
@@ -41,7 +40,7 @@ class Adapter
      *
      * @return array
      */
-    public function formatClauses(array $clauses)
+    public function formatClauses(array $clauses): array
     {
         $clauses['expand'] = implode(',', $clauses['expand']);
 
@@ -49,7 +48,7 @@ class Adapter
         $sort = [];
 
         foreach ($clauses['sort'] as $field => $direction) {
-            $sort[] .= strtolower($direction) == 'desc' ? '-' . $field : $field;
+            $sort[] .= strtolower($direction) === 'desc' ? '-' . $field : $field;
         }
 
         $clauses['sort'] = implode(',', $sort);
@@ -70,10 +69,10 @@ class Adapter
     /**
      * Extract resource data from a raw server response
      *
-     * @param  array $response
+     * @param array $response
      * @return array
      */
-    public function extract($data)
+    public function extract(array $data): array
     {
         if (array_key_exists($this->model->getName(), $data)) {
             return $data[$this->model->getName()];

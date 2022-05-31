@@ -12,30 +12,27 @@ use EloquentRest\Support\Helpers;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Response;
-use InvalidArgumentException;
-use RuntimeException;
 
 class Request
 {
-
     /**
      * The model to be queried
      *
      * @var ModelInterface
      */
-    protected $model;
+    protected ModelInterface $model;
 
     /**
      * The adapter instance
      *
      * @var Adapter
      */
-    protected $adapter;
+    protected Adapter $adapter;
 
     /**
      * Create a new Request instance.
      *
-     * @param  ModelInterface $model
+     * @param ModelInterface $model
      * @return void
      */
     public function __construct(ModelInterface $model)
@@ -49,7 +46,7 @@ class Request
      *
      * @return array
      */
-    public function get(Query $query)
+    public function get(Query $query): array
     {
         try {
             $clauses = $query->getClauses();
@@ -71,7 +68,7 @@ class Request
      *
      * @return array
      */
-    public function put()
+    public function put(): array
     {
         try {
             $response = $this->json($this->make()->put(
@@ -91,7 +88,7 @@ class Request
      *
      * @return array
      */
-    public function post()
+    public function post(): array
     {
         try {
             $response = $this->json($this->make()->post('', ['body' => $this->model->getAttributes()]));
@@ -105,9 +102,9 @@ class Request
     /**
      * Execute a delete request on the model.
      *
-     * @return boolean
+     * @return bool
      */
-    public function delete()
+    public function delete(): bool
     {
         try {
             $this->make()->delete($this->model->getKey());
@@ -125,7 +122,7 @@ class Request
      *
      * @return Client
      */
-    protected function make()
+    protected function make(): Client
     {
         return new Client([
             'base_url' => implode('/', Helpers::flatten([
@@ -142,9 +139,12 @@ class Request
     /**
      * Handle a transfer exception.
      *
-     * @return string
+     * @return void
+     * @throws InvalidModelException
+     * @throws ModelNotFoundException
+     * @throws ModelException
      */
-    protected function handleRequestException(RequestException $e)
+    protected function handleRequestException(RequestException $e): void
     {
         $response = $e->getResponse();
         $error = $this->json($response);

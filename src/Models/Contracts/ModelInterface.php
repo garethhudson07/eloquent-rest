@@ -2,6 +2,9 @@
 
 namespace EloquentRest\Models\Contracts;
 
+use EloquentRest\Query;
+use League\OAuth2\Client\Token\AccessTokenInterface;
+
 interface ModelInterface
 {
     /**
@@ -9,59 +12,59 @@ interface ModelInterface
      *
      * @return array
      */
-    public function toArray();
+    public function toArray(): array;
 
     /**
      * Save the model
      *
-     * @return boolean
+     * @return ModelInterface
      */
-    public function save();
+    public function save(): ModelInterface;
 
     /**
      * Get the primary key for the model.
      *
      * @return string
      */
-    public function getKeyName();
+    public function getKeyName(): string;
 
     /**
      * Determine whether the model exists.
      *
-     * @return boolean
+     * @return bool
      */
-    public function isSingleton();
+    public function isSingleton(): bool;
 
     /**
      * Create a new instance of the model.
      *
-     * @param  array  $attributes
-     * @return static
+     * @param array $attributes
+     * @return ModelInterface
      */
-    public function newInstance(array $attributes = []);
+    public function newInstance(array $attributes = []): ModelInterface;
 
     /**
      * Get an attribute from the model.
      *
-     * @param  string  $key
+     * @param string $key
      * @return mixed
      */
-    public function getAttribute($key);
+    public function getAttribute(string $key);
 
     /**
      * Get the model's name.
      *
      * @return string
      */
-    public function getName();
+    public function getName(): string;
 
     /**
      * Get token.
      *
-     * @param  string  $key
+     * @param string $key
      * @return AccessTokenInterface
      */
-    public function getToken();
+    public function getToken(): AccessTokenInterface;
 
     /**
      * Get the value of the model's primary key.
@@ -75,42 +78,70 @@ interface ModelInterface
      *
      * @return string
      */
-    public function getForeignKey();
+    public function getForeignKey(): string;
 
     /**
      * Get the model's attributes.
      *
-     * @return mixed
+     * @return array
      */
-    public function getAttributes();
+    public function getAttributes(): array;
 
     /**
      * Get the model's prefix.
      *
-     * @return string
+     * @return string|null
      */
-    public function getPrefix();
+    public function getPrefix(): ?string;
 
     /**
      * Get scopes.
      *
      * @return array
      */
-    public function getScopes();
+    public function getScopes(): array;
 
     /**
      * Add scope to the model.
      *
-     * @param  mixed  $context
-     * @param  mixed  $key
-     * @return $this
+     * @param mixed  $context
+     * @param mixed  $key
+     * @return ModelInterface
      */
-    public function scope($context, $key = null);
+    public function scope($context, ?string $key = null): ModelInterface;
 
     /**
      * Get the API resource endpoint.
      *
      * @return string
      */
-    public function getEndpoint();
+    public function getEndpoint(): string;
+
+    /**
+     * Save a new resource to the API
+     *
+     * @param array $attributes
+     * @return ModelInterface
+     */
+    public function create(array $attributes): ModelInterface;
+
+    /**
+     * Update an existing resource in the API
+     *
+     * @param array $attributes
+     * @return ModelInterface
+     */
+    public function update(array $attributes): ModelInterface;
+
+    /**
+     * Delete an existing resource from the API
+     *
+     * @return ModelInterface
+     */
+    public function delete(): bool;
+
+    /**
+     * @return Query
+     */
+    public function newQuery(): Query;
 }

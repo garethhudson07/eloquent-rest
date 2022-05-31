@@ -11,12 +11,12 @@ class Factory
      *
      * @var ModelInterface
      */
-    protected $model;
+    protected ModelInterface $model;
 
     /**
      * Create a new Response instance.
      *
-     * @param  array $data
+     * @param array $data
      * @return void
      */
     public function __construct(ModelInterface $model)
@@ -27,7 +27,7 @@ class Factory
     /**
      * Make a resource from raw data
      *
-     * @param  array $data
+     * @param array $data
      * @return Resource|Collection
      */
     public function make(array $data)
@@ -46,7 +46,7 @@ class Factory
     /**
      * Make a model from raw data
      *
-     * @param  array $data
+     * @param array $data
      * @return Resource|Collection
      */
     public function model(array $data)
@@ -57,7 +57,7 @@ class Factory
     /**
      * Make a collection from raw data
      *
-     * @param  array $data
+     * @param array $data
      * @return Resource|Collection
      */
     public function collection(array $items)

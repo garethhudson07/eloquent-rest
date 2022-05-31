@@ -3,13 +3,20 @@
 namespace EloquentRest\Relations;
 
 use EloquentRest\Models\Contracts\ModelInterface;
+use EloquentRest\Collection;
+use EloquentRest\Query;
 use EloquentRest\Support\Helpers;
 
 abstract class Relation
 {
-
+    /**
+     * @var ModelInterface
+     */
     protected $model;
 
+    /**
+     * @var ModelInterface
+     */
     protected $related;
 
     public function __construct(ModelInterface $model, ModelInterface $related)
@@ -21,9 +28,9 @@ abstract class Relation
     /**
      * Get the related model.
      *
-     * @return Model
+     * @return ModelInterface
      */
-    public function getRelated()
+    public function getRelated(): ModelInterface
     {
         return $this->related;
     }
@@ -33,7 +40,7 @@ abstract class Relation
      *
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return Helpers::camel($this->getRelated()->getEndpoint());
     }
@@ -41,11 +48,11 @@ abstract class Relation
     /**
      * Dynamically handle query builder methods via the relation.
      *
-     * @param  string  $method
-     * @param  array   $parameters
+     * @param string $method
+     * @param array $parameters
      * @return Query
      */
-    public function __call($method, $parameters)
+    public function __call(string $method, array $parameters)
     {
         return call_user_func_array([$this->newQuery(), $method], $parameters);
     }
@@ -55,21 +62,21 @@ abstract class Relation
      *
      * @return Query
      */
-    abstract public function newQuery();
+    abstract public function newQuery(): Query;
 
     /**
      * Create a new relation.
      *
-     * @param  array $attributes
-     * @return Model
+     * @param array $attributes
+     * @return ModelInterface
      */
-    abstract public function create(array $attributes);
+    abstract public function create(array $attributes): ModelInterface;
 
     /**
      * Fill the relation with an array of attributes.
      *
-     * @param  array  $attributes
-     * @return Collection
+     * @param array $attributes
+     * @return ModelInterface|Collection
      */
-    abstract public function fill(array $items);
+    abstract public function fill(array $attributes);
 }
