@@ -1,6 +1,6 @@
 {
     "name": "garethhudson07/eloquent-rest",
-    "description": "An eloquent model style interface to a REST based API",
+    "description": "An Eloquent model style interface to a REST based API",
     "keywords": [
         "eloquent",
         "model",
