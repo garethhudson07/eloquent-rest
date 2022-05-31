@@ -450,7 +450,7 @@ abstract class Model implements ModelInterface, JsonSerializable, ArrayAccess
      *
      * @return Request
      */
-    protected function newRequest(): Request
+    public function newRequest(): Request
     {
         return new Request($this);
     }

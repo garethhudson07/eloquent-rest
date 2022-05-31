@@ -39,9 +39,9 @@ class Query
     /**
      * The number of result to retrieve.
      *
-     * @var int
+     * @var int|null
      */
-    protected int $limit;
+    protected ?int $limit = null;
 
     /**
      * Create a new Query instance.
@@ -136,7 +136,7 @@ class Query
      */
     public function get()
     {
-        $response = (new Request($this->model))->get($this);
+        $response = $this->model->newRequest()->get($this);
 
         if (is_null($response)) {
             return null;
@@ -206,7 +206,7 @@ class Query
             'expand' => $this->expand,
             'where' => $this->where,
             'sort' => $this->sort,
-            'limit' => $this->limit
+            'limit' => $this->limit,
         ];
     }
 }

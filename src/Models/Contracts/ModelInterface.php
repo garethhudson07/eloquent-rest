@@ -2,6 +2,7 @@
 
 namespace EloquentRest\Models\Contracts;
 
+use EloquentRest\Http\Request;
 use EloquentRest\Query;
 use League\OAuth2\Client\Token\AccessTokenInterface;
 
@@ -144,4 +145,11 @@ interface ModelInterface
      * @return Query
      */
     public function newQuery(): Query;
+
+    /**
+     * Get a new instance of the Request class
+     *
+     * @return Request
+     */
+    public function newRequest(): Request;
 }
