@@ -164,7 +164,7 @@ class Request
         $response = $e->getResponse();
         $error = $this->adapter->extractErrors($response);
 
-        switch ($response->getStatusCode()) {
+        switch ((int) ($error['errorCode'] ?? $response->getStatusCode())) {
             case 400:
                 throw new InvalidModelException($this->model, $error['errorDescription'], $error['errorDetails']);
                 break;

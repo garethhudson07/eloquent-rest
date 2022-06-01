@@ -68,11 +68,15 @@ class Adapter
 
         // We want to add our where clauses as additional parameters
         // However we want to exclude any clauses on the primary key as this will be handled via the url
-        $conditions = array_map(function ($value) {
-            return $value === null ? 'null' : $value;
-        }, Helpers::pull($clauses, 'where'));
+        $conditions = Helpers::pull($clauses, 'where');
 
-        $clauses = array_merge($clauses, $conditions);
+        foreach ($conditions as $condition) {
+            if ($condition['field'] === $this->model->getKeyName()) {
+                continue;
+            }
+
+            $clauses[$condition['field']] = $condition['value'] ?? 'null';
+        }
 
         // Remove empty keys and return
         return array_filter($clauses);
@@ -81,22 +85,24 @@ class Adapter
     /**
      * Extract resource data from a raw server response
      *
-     * @param ResponseInterface $data
+     * @param ResponseInterface $response
      * @return array|null
      */
-    public function extract(ResponseInterface $data): ?array
+    public function extract(ResponseInterface $response): ?array
     {
-        return json_decode($data->getBody()->getContents(), true) ?? null;
+        return json_decode($response->getBody()->getContents(), true) ?? null;
     }
 
     /**
      * Extract error data from a raw server response
      *
-     * @param array $data
+     * @param ResponseInterface $response
      * @return array
      */
-    public function extractErrors(ResponseInterface $data): array
+    public function extractErrors(ResponseInterface $response): array
     {
+        $data = json_decode($response->getBody()->getContents(), true) ?? [];
+
         return [
             'errorDescription' => $data['errorDescription'] ?? null,
             'errorDetails' => $data['errorDetails'] ?? null,

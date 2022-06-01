@@ -2,7 +2,9 @@
 
 namespace EloquentRest;
 
+use EloquentRest\Exceptions\InvalidQueryArgumentsException;
 use EloquentRest\Exceptions\ModelNotFoundException;
+use EloquentRest\Exceptions\UnknownOperatorException;
 use EloquentRest\Http\Request;
 use EloquentRest\Models\Contracts\ModelInterface;
 
@@ -61,9 +63,21 @@ class Query
      * @param mixed $value
      * @return static
      */
-    public function where(string $key, $value): self
+    public function where(...$arguments): self
     {
-        $this->where[$key] = $value;
+        if (count($arguments) < 2 || count($arguments) > 3) {
+            throw new InvalidQueryArgumentsException($this->model);
+        }
+
+        $field = $arguments[0];
+        $value = $arguments[2] ?? $arguments[1];
+        $operator = '=';
+
+        if (count($arguments) === 3) {
+            $operator = mb_strtolower($arguments[1]);
+        }
+
+        $this->where[] = compact('field', 'operator', 'value');
 
         return $this;
     }
