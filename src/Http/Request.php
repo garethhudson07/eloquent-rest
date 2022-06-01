@@ -55,7 +55,9 @@ class Request
     {
         try {
             $clauses = $query->getClauses();
-            $resourceId = Helpers::pull($clauses['where'], $this->model->getKeyName());
+            $resourceId = array_values(array_filter($clauses['where'], function ($condition) {
+                return $condition['field'] === $this->model->getKeyName();
+            }))[0]['value'] ?? null;
 
             $response = $this->make()->get(
                 $resourceId ?: '',
@@ -163,18 +165,19 @@ class Request
     {
         $response = $e->getResponse();
         $error = $this->adapter->extractErrors($response);
+        $errorCode = (int) ($error['errorCode'] ?? $response->getStatusCode());
 
-        switch ((int) ($error['errorCode'] ?? $response->getStatusCode())) {
+        switch ($errorCode) {
             case 400:
-                throw new InvalidModelException($this->model, $error['errorDescription'], $error['errorDetails']);
+                throw new InvalidModelException($this->model, $error['errorDescription'], $error['errorDetails'], $errorCode, $e);
                 break;
 
             case 404:
-                throw new ModelNotFoundException($this->model, $error['errorDescription']);
+                throw new ModelNotFoundException($this->model, $error['errorDescription'], $errorCode, $e);
                 break;
 
             default:
-                throw new ModelException($this->model, $error['errorDescription']);
+                throw new ModelException($this->model, $error['errorDescription'], $errorCode, $e);
                 break;
         }
     }

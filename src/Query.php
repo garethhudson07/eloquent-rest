@@ -39,11 +39,25 @@ class Query
     protected array $sort = [];
 
     /**
+     * Field clauses.
+     *
+     * @var array
+     */
+    protected array $fields = [];
+
+    /**
      * The number of result to retrieve.
      *
      * @var int|null
      */
     protected ?int $limit = null;
+
+    /**
+     * The request offset.
+     *
+     * @var int|null
+     */
+    protected ?int $offset = null;
 
     /**
      * Create a new Query instance.
@@ -83,14 +97,112 @@ class Query
     }
 
     /**
-     * Add a take clause
+     * Add a where clause to the query.
      *
-     * @param int amount
+     * @param string $key
+     * @param mixed $value
      * @return static
      */
-    public function take(int $amount): self
+    public function whereIn(string $field, array $values): self
+    {
+        $this->where[] = [
+            'field' => $field,
+            'operator' => 'in',
+            'value' => implode(',', $values),
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Add a where clause to the query.
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return static
+     */
+    public function whereNotIn(string $field, array $values): self
+    {
+        $this->where[] = [
+            'field' => $field,
+            'operator' => 'not-in',
+            'value' => implode(',', $values),
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Add a where clause to the query.
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return static
+     */
+    public function whereNull(string $field): self
+    {
+        $this->where[] = [
+            'field' => $field,
+            'operator' => '=',
+            'value' => null,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Add a where clause to the query.
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return static
+     */
+    public function whereNotNull(string $field): self
+    {
+        $this->where[] = [
+            'field' => $field,
+            'operator' => '!=',
+            'value' => null,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Add a limit clause
+     *
+     * @param int|null $limit
+     * @return static
+     */
+    public function limit(?int $limit): self
+    {
+        $this->limit = $limit;
+
+        return $this;
+    }
+
+    /**
+     * Add a take clause
+     *
+     * @param int|null amount
+     * @return static
+     */
+    public function take(?int $amount): self
     {
         $this->limit = $amount;
+
+        return $this;
+    }
+
+    /**
+     * Add an offset clause
+     *
+     * @param int|null $offset
+     * @return static
+     */
+    public function offset(?int $offset): self
+    {
+        $this->offset = $offset;
 
         return $this;
     }
@@ -105,6 +217,22 @@ class Query
     public function orderBy(string $field, string $direction = 'asc'): self
     {
         $this->sort[$field] = $direction;
+
+        return $this;
+    }
+
+    /**
+     * Add an order by clause
+     *
+     * @param string field
+     * @param string direction
+     * @return static
+     */
+    public function select(...$fields): self
+    {
+        foreach ($fields as $field) {
+            $this->fields = array_unique(array_merge($this->fields, (array) $field));
+        }
 
         return $this;
     }
@@ -220,7 +348,9 @@ class Query
             'expand' => $this->expand,
             'where' => $this->where,
             'sort' => $this->sort,
-            'limit' => $this->limit,
+            'fields' => $this->fields,
+            'limit' => $this->limit ?: null,
+            'offset' => $this->offset ?: null,
         ];
     }
 }
