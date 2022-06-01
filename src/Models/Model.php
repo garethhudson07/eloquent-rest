@@ -126,10 +126,10 @@ abstract class Model implements ModelInterface, JsonSerializable, ArrayAccess
     public function offsetSet($offset, $value): void
     {
         if (isset($this->relations[$offset])) {
-            $this->relations[$offset] = $value;
+            $this->setRelation((string) $offset, $value);
         }
 
-        $this->attributes[$offset] = $value;
+        $this->setAttribute((string) $offset, $value);
     }
 
     /**
@@ -163,11 +163,7 @@ abstract class Model implements ModelInterface, JsonSerializable, ArrayAccess
      */
     public function __get(string $key)
     {
-        if (($attribute = $this->getAttribute($key)) !== false) {
-            return $attribute;
-        }
-
-        return $this->getRelation($key);
+        return $this->offsetGet($key);
     }
 
     /**
@@ -189,6 +185,18 @@ abstract class Model implements ModelInterface, JsonSerializable, ArrayAccess
     public function getAttribute(string $key)
     {
         return $this->attributes[$key] ?? null;
+    }
+
+    /**
+     * Set an attribute on the model.
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return void
+     */
+    public function setAttribute(string $key, $value): void
+    {
+        $this->attributes[$key] = $value;
     }
 
     /**
@@ -289,9 +297,9 @@ abstract class Model implements ModelInterface, JsonSerializable, ArrayAccess
      * @param mixed $value
      * @return void
      */
-    public function __set($key, $value): void
+    public function __set(string $key, $value): void
     {
-        $this->attributes[$key] = $value;
+        $this->offsetSet($key, $value);
     }
 
     /**
