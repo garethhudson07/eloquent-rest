@@ -422,7 +422,13 @@ abstract class Model implements ModelInterface, JsonSerializable, ArrayAccess
     {
         foreach ($attributes as $key => $value) {
             if (method_exists($this, $key)) {
-                $relation = call_user_func([$this, $key])->fill($value);
+                $relation = call_user_func([$this, $key]);
+
+                if (method_exists($relation, 'each')) {
+                    $relation->each->fill($value);
+                } else {
+                    $relation->fill($value);
+                }
 
                 $this->setRelation($key, $relation);
 

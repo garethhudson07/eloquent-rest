@@ -169,7 +169,7 @@ class Request
 
         switch ($errorCode) {
             case 400:
-                throw new InvalidModelException($this->model, $error['errorDescription'], $error['errorDetails'], $errorCode, $e);
+                throw new InvalidModelException($this->model, $error['errorDescription'], (array) $error['errorDetails'], $errorCode, $e);
                 break;
 
             case 404:
