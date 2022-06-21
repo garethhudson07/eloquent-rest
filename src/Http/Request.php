@@ -88,7 +88,7 @@ class Request
     public function put(): array
     {
         try {
-            $response = $this->make()->put(
+            $response = $this->make()->patch(
                 $this->model->getKey(),
                 [$this->adapter->getBodyType() => $this->adapter->prepare($this->model)]
             );
