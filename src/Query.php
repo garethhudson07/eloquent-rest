@@ -60,6 +60,13 @@ class Query
     protected ?int $offset = null;
 
     /**
+     * Any additional query parameters
+     *
+     * @var array
+     */
+    protected array $query = [];
+
+    /**
      * Create a new Query instance.
      *
      * @param ModelInterface $model
@@ -208,6 +215,20 @@ class Query
     }
 
     /**
+     * Add a query parameter
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return static
+     */
+    public function query(string $key, $value): self
+    {
+        $this->query[$key] = $value;
+
+        return $this;
+    }
+
+    /**
      * Add an order by clause
      *
      * @param string field
@@ -344,13 +365,13 @@ class Query
      */
     public function getClauses(): array
     {
-        return [
+        return array_merge([
             'expand' => $this->expand,
             'where' => $this->where,
             'sort' => $this->sort,
             'fields' => $this->fields,
             'limit' => $this->limit ?: null,
             'offset' => $this->offset ?: null,
-        ];
+        ], $this->query);
     }
 }
