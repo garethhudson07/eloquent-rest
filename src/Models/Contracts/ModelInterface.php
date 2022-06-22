@@ -34,6 +34,13 @@ interface ModelInterface
      *
      * @return bool
      */
+    public function exists(): bool;
+
+    /**
+     * Determine whether the model exists.
+     *
+     * @return bool
+     */
     public function isSingleton(): bool;
 
     /**
