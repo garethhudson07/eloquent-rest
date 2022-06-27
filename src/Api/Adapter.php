@@ -111,9 +111,9 @@ class Adapter
 
     /**
      * @param ModelInterface $model
-     * @return array
+     * @return array|string
      */
-    public function prepare(ModelInterface $model): array
+    public function prepare(ModelInterface $model)
     {
         return $model->getAttributes();
     }
