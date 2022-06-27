@@ -8,9 +8,8 @@ use EloquentRest\Exceptions\ModelException;
 use EloquentRest\Exceptions\ModelNotFoundException;
 use EloquentRest\Models\Contracts\ModelInterface;
 use EloquentRest\Query;
-use EloquentRest\Support\Helpers;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
+use Throwable;
 
 class Request
 {
@@ -75,7 +74,7 @@ class Request
             }
 
             return $data;
-        } catch (RequestException $e) {
+        } catch (Throwable $e) {
             $this->handleRequestException($e);
         }
     }
@@ -94,7 +93,7 @@ class Request
             );
 
             return $this->adapter->extract($response);
-        } catch (RequestException $e) {
+        } catch (Throwable $e) {
             $this->handleRequestException($e);
         }
     }
@@ -112,7 +111,7 @@ class Request
             ]);
 
             return $this->adapter->extract($response);
-        } catch (RequestException $e) {
+        } catch (Throwable $e) {
             $this->handleRequestException($e);
         }
     }
@@ -128,7 +127,7 @@ class Request
             $this->make()->delete($this->model->getKey());
 
             return true;
-        } catch (RequestException $e) {
+        } catch (Throwable $e) {
             $this->handleRequestException($e);
         }
 
@@ -161,11 +160,20 @@ class Request
      * @throws ModelNotFoundException
      * @throws ModelException
      */
-    protected function handleRequestException(RequestException $e): void
+    protected function handleRequestException(Throwable $e): void
     {
-        $response = $e->getResponse();
-        $error = $this->adapter->extractErrors($response);
-        $errorCode = (int) ($error['errorCode'] ?? $response->getStatusCode());
+        $errorCode = $e->getCode();
+
+        $error = [
+            'errorDescription' => $e->getMessage(),
+            'errorDetails' => [],
+        ];
+
+        if (method_exists($e, 'getResponse')) {
+            $response = $e->getResponse();
+            $error = $this->adapter->extractErrors($response);
+            $errorCode = (int) ($error['errorCode'] ?? $response->getStatusCode());
+        }
 
         switch ($errorCode) {
             case 400:
