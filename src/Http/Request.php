@@ -177,16 +177,13 @@ class Request
 
         switch ($errorCode) {
             case 400:
-                throw new InvalidModelException($this->model, $error['errorDescription'], (array) $error['errorDetails'], $errorCode, $e);
-                break;
+                throw new InvalidModelException($this->model, $error['errorDescription'], (array) $error['errorDetails'], $errorCode);
 
             case 404:
-                throw new ModelNotFoundException($this->model, $error['errorDescription'], $errorCode, $e);
-                break;
+                throw new ModelNotFoundException($this->model, $error['errorDescription'], $errorCode);
 
             default:
-                throw new ModelException($this->model, $error['errorDescription'], $errorCode, $e);
-                break;
+                throw new ModelException($this->model, $error['errorDescription'], $errorCode);
         }
     }
 }
