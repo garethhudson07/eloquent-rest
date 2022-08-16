@@ -29,6 +29,6 @@
         "php": ">=7.4.0",
         "guzzlehttp/guzzle": "^7.4",
         "league/oauth2-client": "^2.6",
-        "garethhudson07/aggregate": "^0.1.0"
+        "garethhudson07/aggregate": "^0.2.1"
     }
 }
