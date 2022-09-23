@@ -24,7 +24,7 @@ class InvalidModelException extends ModelException
      * @param Exception $previous
      * @return void
      */
-    public function __construct(ModelInterface $model, string $message = '', array $errors = [], int $code = 0, Exception $previous = null)
+    public function __construct(ModelInterface $model, ?string $message = null, array $errors = [], int $code = 0, Exception $previous = null)
     {
         parent::__construct($model, $message, $code, $previous);
 

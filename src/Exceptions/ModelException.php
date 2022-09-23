@@ -25,9 +25,9 @@ class ModelException extends RuntimeException
      * @param Exception $previous
      * @return void
      */
-    public function __construct(ModelInterface $model, string $message = '', int $code = 0, Exception $previous = null)
+    public function __construct(ModelInterface $model, ?string $message = null, int $code = 0, Exception $previous = null)
     {
-        parent::__construct($message, $code, $previous);
+        parent::__construct($message ?? '', $code, $previous);
 
         $this->model = $model;
     }

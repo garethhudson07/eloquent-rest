@@ -162,28 +162,32 @@ class Request
      */
     protected function handleRequestException(Throwable $e): void
     {
-        $errorCode = $e->getCode();
-
         $error = [
             'errorDescription' => $e->getMessage(),
+            'errorCode' => $e->getCode(),
             'errorDetails' => [],
         ];
 
         if (method_exists($e, 'getResponse')) {
-            $response = $e->getResponse();
-            $error = $this->adapter->extractErrors($response);
-            $errorCode = (int) ($error['errorCode'] ?? $response->getStatusCode());
+            $response = call_user_func([$e, 'getResponse']);
+            $responseError = $this->adapter->extractErrors($response);
+
+            $error['errorDescription'] = $responseError['errorDescription'] ?: $error['errorDescription'];
+            $error['errorDetails'] = $responseError['errorDetails'] ?: $error['errorDetails'];
+            $error['errorCode'] = $responseError['errorCode'] ?: $response->getStatusCode() ?: $error['errorCode'];
         }
 
-        switch ($errorCode) {
+        $error['errorCode'] = (int) $error['errorCode'];
+
+        switch ($error['errorCode']) {
             case 400:
-                throw new InvalidModelException($this->model, $error['errorDescription'], (array) $error['errorDetails'], $errorCode);
+                throw new InvalidModelException($this->model, $error['errorDescription'], (array) $error['errorDetails'], $error['errorCode']);
 
             case 404:
-                throw new ModelNotFoundException($this->model, $error['errorDescription'], $errorCode);
+                throw new ModelNotFoundException($this->model, $error['errorDescription'], $error['errorCode']);
 
             default:
-                throw new ModelException($this->model, $error['errorDescription'], $errorCode);
+                throw new ModelException($this->model, $error['errorDescription'], $error['errorCode']);
         }
     }
 }

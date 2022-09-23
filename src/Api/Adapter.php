@@ -106,6 +106,7 @@ class Adapter
         return [
             'errorDescription' => $data['errorDescription'] ?? null,
             'errorDetails' => $data['errorDetails'] ?? null,
+            'errorCode' => $response->getStatusCode(),
         ];
     }
 
