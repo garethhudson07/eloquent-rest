@@ -318,7 +318,7 @@ class Query
     {
         $this->where($this->model->getKeyName(), $id);
 
-        return $this->get();
+        return $this->first();
     }
 
     /**
