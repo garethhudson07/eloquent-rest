@@ -6,6 +6,11 @@ use EloquentRest\Models\Contracts\ModelInterface;
 
 class UnknownOperatorException extends ModelException
 {
+    /**
+     * @param ModelInterface $model
+     * @param mixed $operator
+     * @return void
+     */
     public function __construct(ModelInterface $model, $operator)
     {
         $operator = (string) $operator;

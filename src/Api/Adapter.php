@@ -4,6 +4,7 @@ namespace EloquentRest\Api;
 
 use EloquentRest\Models\Contracts\ModelInterface;
 use EloquentRest\Support\Helpers;
+use Exception;
 use Psr\Http\Message\ResponseInterface;
 
 class Adapter
@@ -101,7 +102,17 @@ class Adapter
      */
     public function extractErrors(ResponseInterface $response): array
     {
-        $data = json_decode($response->getBody()->getContents(), true) ?? [];
+        $contents = $response->getBody()->getContents();
+
+        try {
+            $data = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+        } catch (Exception $e) {
+            return [
+                'errorDescription' => is_string($contents) ? $contents : null,
+                'errorDetails' => is_string($contents) ? $contents : null,
+                'errorCode' => $response->getStatusCode(),
+            ];
+        }
 
         return [
             'errorDescription' => $data['errorDescription'] ?? null,
