@@ -330,6 +330,10 @@ class Query
     {
         $result = $this->get();
 
+        if ($result instanceof ModelInterface) {
+            return $result;
+        }
+
         return isset($result[0]) ? $result[0] : null;
     }
 
