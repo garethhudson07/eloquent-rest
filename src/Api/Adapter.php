@@ -97,27 +97,23 @@ class Adapter
     /**
      * Extract error data from a raw server response
      *
-     * @param ResponseInterface $response
+     * @param string $response
      * @return array
      */
-    public function extractErrors(ResponseInterface $response): array
+    public function extractErrors(string $contents): array
     {
-        $contents = $response->getBody()->getContents();
-
         try {
             $data = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
         } catch (Exception $e) {
             return [
-                'errorDescription' => is_string($contents) ? $contents : null,
-                'errorDetails' => is_string($contents) ? $contents : null,
-                'errorCode' => $response->getStatusCode(),
+                'errorDescription' => $contents ?: null,
+                'errorDetails' => $contents ? ['details' => $contents] : [],
             ];
         }
 
         return [
             'errorDescription' => $data['errorDescription'] ?? null,
             'errorDetails' => $data['errorDetails'] ?? null,
-            'errorCode' => $response->getStatusCode(),
         ];
     }
 

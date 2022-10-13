@@ -170,11 +170,13 @@ class Request
 
         if (method_exists($e, 'getResponse')) {
             $response = call_user_func([$e, 'getResponse']);
-            $responseError = $this->adapter->extractErrors($response);
+            $contents = $response->getBody()->getContents();
 
-            $error['errorDescription'] = $responseError['errorDescription'] ?: $error['errorDescription'];
-            $error['errorDetails'] = $responseError['errorDetails'] ?: $error['errorDetails'];
-            $error['errorCode'] = $responseError['errorCode'] ?: $response->getStatusCode() ?: $error['errorCode'];
+            $responseError = $this->adapter->extractErrors($contents);
+
+            $error['errorDescription'] = $responseError['errorDescription'] ?: $contents;
+            $error['errorDetails'] = $responseError['errorDetails'] ?: ['details' => $contents];
+            $error['errorCode'] = $response->getStatusCode();
         }
 
         $error['errorCode'] = (int) $error['errorCode'];
